@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<!-- 建立数据源 -->
+	<bean id="dataSource"
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<!-- 数据库驱动，我这里使用的是Mysql数据库 -->
+		<property name="driverClassName">
+			<value>com.mysql.jdbc.Driver</value>
+		</property>
+		<!-- 数据库地址，这里也要注意一下编码，不然乱码可是很郁闷的哦！ -->
+		<property name="url">
+			<value>
+				jdbc:mysql://localhost:3306/tie?useUnicode=true&amp;characterEncoding=utf-8
+			</value>
+		</property>
+		<!-- 数据库的用户名 -->
+		<property name="username">
+			<value>root</value>
+		</property>
+		<!-- 数据库的密码 -->
+		<property name="password">
+			<value>123</value>
+		</property>
+	</bean>
+	<!-- 把数据源注入给Session工厂 -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<!-- 配置映射文件 -->
+		<property name="mappingResources">
+			<list>
+				<value>com/alonely/vo/User.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 把Session工厂注入给hibernateTemplate -->
+	<!-- 解释一下hibernateTemplate：hibernateTemplate提供了很多方便的方法，在执行时自动建立 HibernateCallback 对象，例如：load()、get()、save、delete()等方法。 -->
+	<bean id="hibernateTemplate"
+		class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<constructor-arg>
+			<ref local="sessionFactory" />
+		</constructor-arg>
+	</bean>
+	<!-- 把DAO注入给Session工厂 -->
+	<bean id="userDAO" class="com.alonely.dao.UserDAO">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+	<!-- 把Service注入给DAO -->
+	<bean id="userService" class="com.alonely.service.UserService">
+		<property name="userDAO">
+			<ref local="userDAO" />
+		</property>
+	</bean>
+	<!-- 把Action注入给Service -->
+	<bean name="/user" class="com.alonely.struts.action.UserAction">
+		<property name="userService">
+			<ref bean="userService" />
+		</property>
+	</bean>
+</beans>

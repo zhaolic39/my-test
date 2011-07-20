@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="jdbc.properties" />
+	</bean>
+
+	<bean id="c3p0DataSource"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass">
+			<value>${jdbc.driverClassName}</value>
+		</property>
+		<property name="jdbcUrl">
+			<value>${jdbc.url}</value>
+		</property>
+		<property name="user">
+			<value>${jdbc.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.password}</value>
+		</property>
+		<property name="initialPoolSize">
+			<value>1</value>
+		</property>
+		<property name="minPoolSize">
+			<value>1</value>
+		</property>
+		<property name="maxPoolSize">
+			<value>3</value>
+		</property>
+		<property name="acquireIncrement">
+			<value>1</value>
+		</property>
+		<property name="maxIdleTime">
+			<value>10</value>
+		</property>
+		<property name="maxStatements">
+			<value>0</value>
+		</property>
+	</bean>
+
+	<bean id="dbUtilsTemplate" class="spring.util.DbUtilsTemplate">
+		<property name="dataSource">
+			<ref local="c3p0DataSource" />
+		</property>
+	</bean>
+
+	<bean id="helloService" class="spring.service.HelloWordService">
+		<property name="helloDAO">
+			<ref local="helloDAO" />
+		</property>
+	</bean>
+
+	<bean id="helloDAO" class="spring.service.HelloDAO">
+		<property name="dbUtilsTemplate">
+			<ref local="dbUtilsTemplate" />
+		</property>
+	</bean>
+
+</beans>
